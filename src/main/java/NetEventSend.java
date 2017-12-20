@@ -64,11 +64,12 @@ public class NetEventSend {
         return true;
     }
 
-    public static void Main(String[] args) {
+    public static void main(String[] args) {
         NetEventSend netEventSend = new NetEventSend();
 //        if (!netEventSend.sendEvents()) {
 //            System.err.println("无法发送事件");
 //        }
+        netEventSend.initConnection();
         EventSimulation eventSimulation = new EventSimulation();
         int eventAll = EventSimulation.getEventAll();
         for (int i = 0; i < eventAll; ++i) {
