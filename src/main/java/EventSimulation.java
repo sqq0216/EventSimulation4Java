@@ -14,7 +14,7 @@ public class EventSimulation {
     /**
      * 总共模拟多少个事件
      */
-    private final static int EVENT_ALL = 1_000;
+    private final static int EVENT_ALL = 1_0;
     /**
      * 每个事件多长
      */
@@ -22,7 +22,11 @@ public class EventSimulation {
     /**
      * 关键事件产生概率
      */
-    private final static double IMPORTANT_EVENT_PRO = 0.5;
+    private final static double IMPORTANT_EVENT_PRO = 0.0;
+    /**
+     * 事件发送间隔(ns)
+     */
+    private final static int SLEEP_TIME = 1_000;
     /**
      * 动态生成事件的编号
      */
@@ -129,6 +133,7 @@ public class EventSimulation {
                 int x = eventSimulation.getDynamicValue();
                 int y = eventSimulation.getDynamicValue();
                 String event = eventSimulation.getEvent(x, y);
+                System.out.println("动态构造的事件为:" + event);
 
                 // 每10个事件中取1个发往串口
                 netEventSend.sendEvent(event);
@@ -139,6 +144,12 @@ public class EventSimulation {
                     catch (Exception e) {
                         System.err.println(e);
                     }
+                }
+                try {
+                    Thread.sleep(SLEEP_TIME);
+                }
+                catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
             }
         }

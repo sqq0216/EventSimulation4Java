@@ -56,14 +56,18 @@ public class SerialEventSend {
     }
 
     public void sendEvent(String event) throws SendDataToSerialPortFailure, SerialPortOutputStreamCloseFailure {
+        System.out.println("尝试通过串口发送事件");
         OutputStream outputStream = null;
         try {
             outputStream = serialPortClient.getOutputStream();
             outputStream.write(event.getBytes());
-            outputStream.flush();
+//            outputStream.flush();
         }
         catch (IOException e) {
             throw new SendDataToSerialPortFailure();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
         }
         finally {
             try {
@@ -76,6 +80,7 @@ public class SerialEventSend {
                 throw new SerialPortOutputStreamCloseFailure();
             }
         }
+        System.out.println("成功通过串口发送事件");
     }
 
     String readEvent() throws ReadDataFromSerialPortFailure, SerialPortInputStreamCloseFailure {

@@ -46,6 +46,7 @@ public class NetEventSend {
     }
 
     public boolean sendEvent(String event) {
+        System.out.println("尝试通过网络发送事件");
         if (client == null) {
             System.err.println("连接尚未建立！");
             return false;
@@ -59,6 +60,7 @@ public class NetEventSend {
             System.err.println("数据包发送失败！" + e);
             return false;
         }
+        System.out.println("成功通过网络发送事件");
         return true;
     }
 }
