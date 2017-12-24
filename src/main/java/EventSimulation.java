@@ -1,6 +1,10 @@
+import Net.NetEventSend;
+import serialPort.SerialEventSend;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Scanner;
 
 public class EventSimulation {
     public static int getEventAll() {
@@ -31,10 +35,10 @@ public class EventSimulation {
             "increase"
     ));
 
-    public List<String> getEvents() {
-        return events;
-    }
-
+    /**
+     * 根据概率动态生成事件名称
+     * @return
+     */
     private String getEventName() {
         if (Math.random() > IMPORTANT_EVENT_PRO) {
             return "notImportantEventName";
@@ -45,13 +49,13 @@ public class EventSimulation {
     }
 
     /**
-     * 事件列表
+     * 静态构造的事件列表
      */
-    private List<String> events = new ArrayList<>(EVENT_ALL);
+    private List<String> staticEvents = new ArrayList<>(EVENT_ALL);
     /**
      * 构造事件
      */
-    public void constructEvents() {
+    private void constructStaticEvents() {
         String eventHead, eventTail, event;
         for (int i = 1; i <= EVENT_ALL; ++i) {
             eventHead = "<xml type=\"event\" name=\"" + getEventName() + "\" num=\"" + String.valueOf(i) + "\" attr=\"";
@@ -61,20 +65,15 @@ public class EventSimulation {
                 eventSB.append("*");
             }
             event = eventHead + eventSB.toString() + eventTail;
-            events.add(event);
+            staticEvents.add(event);
         }
     }
 
     /**
-     * 根据关键事件概率生成0或1
+     * 动态生成随机变量值
      * @return
      */
-    private String getEventImportant() {
-        if (Math.random() > IMPORTANT_EVENT_PRO) return "0";
-        else return "1";
-    }
-
-    public int getDynamicValue() {
+    private int getDynamicValue() {
         return (int)(Math.random() * 100);
     }
 
@@ -82,7 +81,7 @@ public class EventSimulation {
      * 动态生成事件
      * @return
      */
-    public String getEvent(int x, int y) {
+    private String getEvent(int x, int y) {
         String eventHead, eventTail, event;
 
         eventHead = "<xml type=\"event\" name=\"" + getEventName() + "\" num=\"" + String.valueOf(dynamicEventNum++) + "\" attr=\"";
@@ -96,4 +95,54 @@ public class EventSimulation {
         return event;
     }
 
+    public static void main(String[] args) {
+        EventSimulation eventSimulation = new EventSimulation();
+
+        NetEventSend netEventSend = new NetEventSend();
+        if (!netEventSend.initConnection()) {
+            return ;
+        }
+
+        SerialEventSend serialEventSend = new SerialEventSend();
+        try {
+            serialEventSend.openPort();
+        }
+        catch (Exception e) {
+            System.err.println(e);
+            return ;
+        }
+
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            System.out.print("请输入指令（0 继续，1退出）:");
+            String cmd = scanner.nextLine();
+            if ("1".equals(cmd)) {
+                break;
+            }
+            else if (!"0".equals(cmd)) {
+                System.err.println("无法识别指令" + cmd);
+                continue;
+            }
+
+            System.out.println("继续发送长度为" + EVENT_LENGTH + "数量为" + EVENT_ALL + "的事件");
+            for (int i = 0; i < EVENT_ALL; ++i) {
+                int x = eventSimulation.getDynamicValue();
+                int y = eventSimulation.getDynamicValue();
+                String event = eventSimulation.getEvent(x, y);
+
+                // 每10个事件中取1个发往串口
+                netEventSend.sendEvent(event);
+                if (i % 10 == 0) {
+                    try {
+                        serialEventSend.sendEvent(event);
+                    }
+                    catch (Exception e) {
+                        System.err.println(e);
+                    }
+                }
+            }
+        }
+        netEventSend.closeConnection();
+        serialEventSend.closePort();
+    }
 }
