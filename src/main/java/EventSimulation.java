@@ -22,7 +22,7 @@ public class EventSimulation {
     /**
      * 关键事件产生概率
      */
-    private final static double IMPORTANT_EVENT_PRO = 0.0;
+    private final static double IMPORTANT_EVENT_PRO = 0.7;
     /**
      * 事件发送间隔(ns)
      */
@@ -36,7 +36,8 @@ public class EventSimulation {
      * 关键事件名称列表
      */
     private final static List<String> IMPORTANT_EVENT_NAME_LIST = new ArrayList<>(Arrays.asList(
-            "increase"
+            "increase",
+            "decrease"
     ));
 
     /**
@@ -85,10 +86,15 @@ public class EventSimulation {
      * 动态生成事件
      * @return
      */
-    private String getEvent(int x, int y) {
+    private String increase(int x, int y) {
+        try {
+            Thread.sleep(SLEEP_TIME);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         String eventHead, eventTail, event;
 
-        eventHead = "<xml type=\"event\" name=\"" + getEventName() + "\" num=\"" + String.valueOf(dynamicEventNum++) + "\" attr=\"";
+        eventHead = "<xml type=\"event\" name=\"increase\" num=\"" + String.valueOf(dynamicEventNum++) + "\" attr=\"";
         eventTail = "\"><x>" + String.valueOf(x) + "</x><y>" + String.valueOf(y) + "</y></xml>";
         StringBuilder eventSB = new StringBuilder();
         for (int j = 0; j < EVENT_LENGTH - eventHead.length() - eventTail.length(); ++j) {
@@ -98,6 +104,45 @@ public class EventSimulation {
         event = eventHead + eventSB.toString() + eventTail;
         return event;
     }
+
+    private String decrease(int x, int y) {
+        try {
+            Thread.sleep(SLEEP_TIME);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        String eventHead, eventTail, event;
+
+        eventHead = "<xml type=\"event\" name=\"decrease\" num=\"" + String.valueOf(dynamicEventNum++) + "\" attr=\"";
+        eventTail = "\"><x>" + String.valueOf(x) + "</x><y>" + String.valueOf(y) + "</y></xml>";
+        StringBuilder eventSB = new StringBuilder();
+        for (int j = 0; j < EVENT_LENGTH - eventHead.length() - eventTail.length(); ++j) {
+            eventSB.append("*");
+        }
+
+        event = eventHead + eventSB.toString() + eventTail;
+        return event;
+    }
+
+    private String unimportant(int x, int y) {
+        try {
+            Thread.sleep(SLEEP_TIME);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        String eventHead, eventTail, event;
+
+        eventHead = "<xml type=\"event\" name=\"unimportant\" num=\"" + String.valueOf(dynamicEventNum++) + "\" attr=\"";
+        eventTail = "\"><x>" + String.valueOf(x) + "</x><y>" + String.valueOf(y) + "</y></xml>";
+        StringBuilder eventSB = new StringBuilder();
+        for (int j = 0; j < EVENT_LENGTH - eventHead.length() - eventTail.length(); ++j) {
+            eventSB.append("*");
+        }
+
+        event = eventHead + eventSB.toString() + eventTail;
+        return event;
+    }
+
 
     public static void main(String[] args) {
         EventSimulation eventSimulation = new EventSimulation();
@@ -132,24 +177,28 @@ public class EventSimulation {
             for (int i = 0; i < EVENT_ALL; ++i) {
                 int x = eventSimulation.getDynamicValue();
                 int y = eventSimulation.getDynamicValue();
-                String event = eventSimulation.getEvent(x, y);
+                String event = null;
+                if (Math.random() > IMPORTANT_EVENT_PRO) {
+                    event = eventSimulation.unimportant(x, y);
+                }
+                else if (Math.random() > 0.5) {
+                    event = eventSimulation.increase(x, y);
+                }
+                else {
+                    event = eventSimulation.decrease(x, y);
+                }
+//                String event = eventSimulation.getEvent(x, y);
                 System.out.println("动态构造的事件为:" + event);
 
                 // 每10个事件中取1个发往串口
                 netEventSend.sendEvent(event);
-                if (i % 10 == 0) {
+                if (i % 5 == 0) {
                     try {
                         serialEventSend.sendEvent(event);
                     }
                     catch (Exception e) {
                         System.err.println(e);
                     }
-                }
-                try {
-                    Thread.sleep(SLEEP_TIME);
-                }
-                catch (InterruptedException e) {
-                    e.printStackTrace();
                 }
             }
         }
