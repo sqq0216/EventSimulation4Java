@@ -192,7 +192,7 @@ public class EventSimulation {
 
                 // 每10个事件中取1个发往串口
                 netEventSend.sendEvent(event);
-                if (i % 5 == 0) {
+                if (i % 2 == 0) {
                     try {
                         serialEventSend.sendEvent(event);
                     }
