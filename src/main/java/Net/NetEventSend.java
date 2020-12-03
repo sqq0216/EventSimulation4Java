@@ -5,7 +5,9 @@ import java.net.*;
 import java.util.List;
 
 public class NetEventSend {
-    private final static String DEFAULT_SERVER_IP = "10.108.165.205";
+//    private final static String DEFAULT_SERVER_IP = "10.28.162.199"; // wifi
+//    private final static String DEFAULT_SERVER_IP = "10.108.166.242"; // enps
+    private final static String DEFAULT_SERVER_IP = "10.108.164.131";// shiyanshi enps
     private final static int DEFAULT_SERVER_PORT = 5556;
 
     private DatagramSocket client = null;

@@ -152,15 +152,6 @@ public class EventSimulation {
             return ;
         }
 
-        SerialEventSend serialEventSend = new SerialEventSend();
-        try {
-            serialEventSend.openPort();
-        }
-        catch (Exception e) {
-            System.err.println(e);
-            return ;
-        }
-
         Scanner scanner = new Scanner(System.in);
         while (true) {
             System.out.print("请输入指令（0 继续，1退出）:");
@@ -190,19 +181,12 @@ public class EventSimulation {
 //                String event = eventSimulation.getEvent(x, y);
                 System.out.println("动态构造的事件为:" + event);
 
-                // 每10个事件中取1个发往串口
+                //这个方法通过网络发送事件
                 netEventSend.sendEvent(event);
-                if (i % 2 == 0) {
-                    try {
-                        serialEventSend.sendEvent(event);
-                    }
-                    catch (Exception e) {
-                        System.err.println(e);
-                    }
-                }
+
             }
         }
         netEventSend.closeConnection();
-        serialEventSend.closePort();
+//        serialEventSend.closePort();
     }
 }
